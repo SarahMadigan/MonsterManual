@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/attack_roll_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Claw Attack"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/attack_roll_breakdown"
+        android:layout_margin="10dp"/>
+
+    <TextView
+        android:id="@+id/attack_roll_breakdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ATTACK ROLL"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/attack_roll_header"
+        app:layout_constraintBottom_toTopOf="@+id/damage_roll_header"
+        android:layout_margin="10dp"
+        android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/damage_roll_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Piercing Damage"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/attack_roll_breakdown"
+        app:layout_constraintBottom_toTopOf="@+id/damage_roll_breakdown"
+        android:layout_margin="10dp" />
+
+    <TextView
+        android:id="@+id/damage_roll_breakdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DAMAGE BREAKDOWN"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/damage_roll_header"
+        app:layout_constraintBottom_toTopOf="@+id/attack_roll_dismiss_button"
+        android:layout_margin="10dp"
+        android:textSize="20dp"/>
+
+    <Button
+        android:id="@+id/attack_roll_dismiss_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/damage_roll_breakdown"
+        android:layout_marginTop="20dp"/>
+
+</android.support.constraint.ConstraintLayout>

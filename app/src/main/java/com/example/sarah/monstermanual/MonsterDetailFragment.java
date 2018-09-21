@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.example.sarah.monstermanual.dummy.DummyContent;
 
+import org.w3c.dom.Text;
+
 import java.util.Locale;
 
 /**
@@ -24,6 +26,7 @@ import java.util.Locale;
  * in two-pane mode (on tablets) or a {@link MonsterDetailActivity}
  * on handsets.
  */
+
 public class MonsterDetailFragment extends Fragment {
     /**
      * The fragment argument representing the item ID that this fragment
@@ -134,17 +137,18 @@ public class MonsterDetailFragment extends Fragment {
 
         LayoutInflater vi = getLayoutInflater();
 
-// fill in any details dynamically here
-//        TextView textView = (TextView) v.findViewById(R.id.a_text_view);
-//        textView.setText("your text");
-
-// insert into main view
-
         for (int i = 0; i < numAttacks; i++) {
             View attackView = vi.inflate(R.layout.card_attack, null);
             setAttackDetails(monster.getAttack(i), attackView);
-            ViewGroup insertPoint = getActivity().findViewById(R.id.monster_detail_container);
             ((ViewGroup)rootView).addView(attackView, 1 + i, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            attackView.setOnClickListener(new AttackOnClickListener(monster.getAttack(i)) {
+                @Override
+                public void onClick(View v) {
+                    int index = ((ViewGroup) v.getParent()).indexOfChild(v) - 1;
+                    showAttackRollPopup(monster.getAttack(index));
+                }
+
+            });
         }
 
         return rootView;
@@ -156,13 +160,15 @@ public class MonsterDetailFragment extends Fragment {
         ((TextView) attackView.findViewById(R.id.attack_average_damage)).setText(String.format("%d", attack.getAverageDamage()));
         ((TextView) attackView.findViewById(R.id.attack_damage_type)).setText(attack.getDamageType());
         Roll roll = attack.getDamageRoll(0);
-        String operator = roll.getModifier() > 0 ? plus : minus;
-        ((TextView) attackView.findViewById(R.id.attack_damage)).setText(String.format("(%dd%d%s%d)", roll.getDieNum(), roll.getDieType(), operator, roll.getModifier()));
+        String operator = roll.getModifier() >= 0 ? plus : minus;
+        ((TextView) attackView.findViewById(R.id.attack_damage)).setText(String.format("(%dd%d%s%d)", roll.getDieNum(), roll.getDieType(), operator, Math.abs(roll.getModifier())));
     }
 
     public void showRollPopup(PojoMonster.Ability ability) {
         View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.activity_roll_result, null);
-        onRoll(popupView, monster.getAbilityModifier(ability));
+        TextView breakdown = popupView.findViewById(R.id.roll_breakdown);
+        Roll roll = new Roll(1, 20, monster.getAbilityModifier(ability));
+        onRoll(breakdown, roll);
 
         final PopupWindow popupWindow = new PopupWindow(popupView, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
         popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
@@ -175,14 +181,37 @@ public class MonsterDetailFragment extends Fragment {
         });
     }
 
-    public void onRoll(View popupView, int modifier) {
-        int roll = (int) Math.floor(Math.random() * 20 + 1);
-        TextView rollText = popupView.findViewById(R.id.roll_breakdown);
-        String symbol = "+";
-        if (modifier < 0) {
-            symbol = "-";
+    public void showAttackRollPopup(Attack attack) {
+        View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.activity_attack_roll_result, null);
+        ((TextView) popupView.findViewById(R.id.attack_roll_header)).setText(String.format("%s attack", attack.getAttackName()));
+        Roll roll = new Roll(1, 20, attack.getAttackModifier());
+        onRoll((TextView) popupView.findViewById(R.id.attack_roll_breakdown), roll);
+        ((TextView) popupView.findViewById(R.id.damage_roll_header)).setText(String.format("%s attack", attack.getDamageType()));
+        onRoll((TextView) popupView.findViewById(R.id.damage_roll_breakdown), attack.getDamageRoll(0));
+        final PopupWindow popupWindow = new PopupWindow(popupView, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+        TextView dismissButton = popupView.findViewById(R.id.attack_roll_dismiss_button);
+        dismissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+    }
+
+    public void onRoll(TextView breakdownView, Roll roll) {
+        int result = rollDie(roll);
+        int modifier = roll.getModifier();
+        String symbol = modifier < 0 ? "-" : "+";
+        String breakdown = String.format(Locale.getDefault(), "%d %s %d = %d", result, symbol, Math.abs(modifier), result + modifier);
+        breakdownView.setText(breakdown);
+    }
+
+    public int rollDie(Roll roll) {
+        int result = 0;
+        for (int i = 0; i < roll.getDieNum(); i++) {
+            result += (int) Math.floor(Math.random() * roll.getDieType() + 1);
         }
-        String breakdown = String.format(Locale.getDefault(), "%d %s %d = %d", roll, symbol, Math.abs(modifier), roll + modifier);
-        rollText.setText(breakdown);
+        return result;
     }
 }
